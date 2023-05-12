@@ -8,10 +8,13 @@ namespace FirstProject_API
     {
         public MappingConfig()
         {
-            CreateMap<Villa, VillaDTO>();
-            CreateMap<VillaDTO, Villa>();
+            CreateMap<Villa, VillaDTO>().ReverseMap();
             CreateMap<Villa, VillaCreatedDTO>().ReverseMap();
             CreateMap<Villa, VillaUpdatedDTO>().ReverseMap();
+
+            CreateMap<VillaNumber, VillaNumberDTO>().ReverseMap();
+            CreateMap<VillaNumber, VillaNumberCreatedDTO>().ReverseMap();
+            CreateMap<VillaNumber, VillaNumberUpdatedDTO>().ReverseMap();
         }
     }
 }

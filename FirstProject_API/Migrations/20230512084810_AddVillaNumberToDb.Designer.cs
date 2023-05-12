@@ -4,6 +4,7 @@ using FirstProject_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstProject_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230512084810_AddVillaNumberToDb")]
+    partial class AddVillaNumberToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +73,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 1,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 12, 5, 37, 47, DateTimeKind.Local).AddTicks(3717),
+                            CreatedDate = new DateTime(2023, 5, 12, 11, 48, 9, 959, DateTimeKind.Local).AddTicks(4035),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Royal Villa",
@@ -83,7 +86,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 2,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 12, 5, 37, 47, DateTimeKind.Local).AddTicks(3769),
+                            CreatedDate = new DateTime(2023, 5, 12, 11, 48, 9, 959, DateTimeKind.Local).AddTicks(4090),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Beach Villa",
@@ -96,7 +99,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 3,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 12, 5, 37, 47, DateTimeKind.Local).AddTicks(3772),
+                            CreatedDate = new DateTime(2023, 5, 12, 11, 48, 9, 959, DateTimeKind.Local).AddTicks(4093),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "New Villa",
@@ -109,7 +112,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 4,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 12, 5, 37, 47, DateTimeKind.Local).AddTicks(3774),
+                            CreatedDate = new DateTime(2023, 5, 12, 11, 48, 9, 959, DateTimeKind.Local).AddTicks(4095),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Old Villa",
@@ -135,25 +138,9 @@ namespace FirstProject_API.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VillaId")
-                        .HasColumnType("int");
-
                     b.HasKey("VillaNo");
 
-                    b.HasIndex("VillaId");
-
                     b.ToTable("VillaNumbers");
-                });
-
-            modelBuilder.Entity("FirstProject_API.Models.VillaNumber", b =>
-                {
-                    b.HasOne("FirstProject_API.Models.Villa", "Villa")
-                        .WithMany()
-                        .HasForeignKey("VillaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Villa");
                 });
 #pragma warning restore 612, 618
         }

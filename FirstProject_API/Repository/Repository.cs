@@ -12,8 +12,8 @@ namespace FirstProject_API.Repository
 
         public Repository(ApplicationDbContext db)
         {
-            this.dbSet = _db.Set<T>();
             _db = db;
+            this.dbSet = _db.Set<T>();
         }
         public async Task CreateAsync(T entity)
         {
@@ -47,7 +47,7 @@ namespace FirstProject_API.Repository
 
         public async Task SaveAsync()
         {
-            await SaveAsync();
+            await _db.SaveChangesAsync();
         }
     }
 }
