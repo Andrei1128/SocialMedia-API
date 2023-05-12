@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FirstProject_API.Models.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace FirstProject_API.Models
 {
@@ -9,5 +10,6 @@ namespace FirstProject_API.Models
         [Required]
         public int VillaId { get; set; }
         public string SpecialDetails { get; set; }
+        public VillaDTO Villa { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using FirstProject_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstProject_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230512104505_SetNullableToDisable")]
+    partial class SetNullableToDisable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,28 +24,6 @@ namespace FirstProject_API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("FirstProject_API.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
 
             modelBuilder.Entity("FirstProject_API.Models.Villa", b =>
                 {
@@ -88,7 +69,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 1,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 15, 27, 25, 573, DateTimeKind.Local).AddTicks(5745),
+                            CreatedDate = new DateTime(2023, 5, 12, 13, 45, 5, 680, DateTimeKind.Local).AddTicks(6141),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Royal Villa",
@@ -101,7 +82,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 2,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 15, 27, 25, 573, DateTimeKind.Local).AddTicks(5791),
+                            CreatedDate = new DateTime(2023, 5, 12, 13, 45, 5, 680, DateTimeKind.Local).AddTicks(6196),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Beach Villa",
@@ -114,7 +95,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 3,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 15, 27, 25, 573, DateTimeKind.Local).AddTicks(5794),
+                            CreatedDate = new DateTime(2023, 5, 12, 13, 45, 5, 680, DateTimeKind.Local).AddTicks(6199),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "New Villa",
@@ -127,7 +108,7 @@ namespace FirstProject_API.Migrations
                         {
                             Id = 4,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 5, 12, 15, 27, 25, 573, DateTimeKind.Local).AddTicks(5796),
+                            CreatedDate = new DateTime(2023, 5, 12, 13, 45, 5, 680, DateTimeKind.Local).AddTicks(6201),
                             Details = "Still, the word has been around ever since ancient Roman times to mean \"country house for the elite.\" In Italian, villa means \"country house or farm.\" Most villas include a large amount of land and often barns, garages, or other outbuildings as well.",
                             ImageUrl = "",
                             Name = "Old Villa",

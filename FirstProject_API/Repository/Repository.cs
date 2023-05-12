@@ -21,21 +21,35 @@ namespace FirstProject_API.Repository
             await SaveAsync();
         }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProprieties = null)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
                 query = query.Where(filter);
+            if (includeProprieties != null)
+            {
+                foreach (var includeProp in includeProprieties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return await query.ToListAsync();
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true)
+        public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true, string? includeProprieties = null)
         {
             IQueryable<T> query = dbSet;
             if (!tracked)
                 query = query.AsNoTracking();
             if (filter != null)
                 query = query.Where(filter);
+            if (includeProprieties != null)
+            {
+                foreach (var includeProp in includeProprieties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return await query.FirstOrDefaultAsync();
         }
 

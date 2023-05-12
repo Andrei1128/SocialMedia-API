@@ -23,6 +23,7 @@ namespace FirstProject_API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetVillas()
         {
             try
@@ -84,7 +85,7 @@ namespace FirstProject_API.Controllers
                     return BadRequest(createDTO);
                 if (await _dbVilla.GetAsync(item => item.Name.ToLower() == createDTO.Name.ToLower()) != null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa already exists!");
+                    ModelState.AddModelError("ErrorMessages", "Villa already exists!");
                     return BadRequest(ModelState);
                 }
                 Villa model = _mapper.Map<Villa>(createDTO);
