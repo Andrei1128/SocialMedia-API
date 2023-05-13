@@ -1,11 +1,11 @@
-using FirstProject_API;
-using FirstProject_API.Data;
-using FirstProject_API.Repository;
-using FirstProject_API.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SocialMedia;
+using SocialMedia.Data;
+using SocialMedia.Repository;
+using SocialMedia.Repository.IRepository;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("DefaultSQLConnection")));
-
 builder.Services.AddResponseCaching();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
@@ -24,15 +24,13 @@ var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = key,
-        ValidAudience = key,
+        ValidateIssuer = false,
+        ValidateAudience = false,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
     };
 });

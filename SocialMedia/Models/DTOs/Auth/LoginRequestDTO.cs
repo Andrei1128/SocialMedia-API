@@ -1,14 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject_API.Models.DTOs
+namespace SocialMedia.Models.DTOs
 {
-    public class RegisterRequestDTO
+    public class LoginRequestDTO
     {
         [Required]
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required]
-        public string Name { get; set; }
     }
 }

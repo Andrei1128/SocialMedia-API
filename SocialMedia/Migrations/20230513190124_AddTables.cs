@@ -101,6 +101,48 @@ namespace SocialMedia.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserFriend",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    FriendId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFriend", x => new { x.UserId, x.FriendId });
+                    table.ForeignKey(
+                        name: "FK_UserFriend_Users_FriendId",
+                        column: x => x.FriendId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserFriend_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRequest",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RequestedUserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRequest", x => new { x.UserId, x.RequestedUserId });
+                    table.ForeignKey(
+                        name: "FK_UserRequest_Users_RequestedUserId",
+                        column: x => x.RequestedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_GroupUser_ParticipantsId",
                 table: "GroupUser",
@@ -120,6 +162,16 @@ namespace SocialMedia.Migrations
                 name: "IX_Posts_PostId",
                 table: "Posts",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFriend_FriendId",
+                table: "UserFriend",
+                column: "FriendId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRequest_RequestedUserId",
+                table: "UserRequest",
+                column: "RequestedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_PostId",
@@ -156,6 +208,12 @@ namespace SocialMedia.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupUser");
+
+            migrationBuilder.DropTable(
+                name: "UserFriend");
+
+            migrationBuilder.DropTable(
+                name: "UserRequest");
 
             migrationBuilder.DropTable(
                 name: "Groups");

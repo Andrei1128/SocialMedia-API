@@ -1,11 +1,9 @@
-﻿using FirstProject_API.Models.DTOs;
+﻿using SocialMedia.Models;
 
-namespace FirstProject_API.Repository.IRepository
+namespace SocialMedia.Repository.IRepository
 {
-    public interface IUserRepository
+    public interface IUserRepository : IRepository<User>
     {
-        bool IsEmailUnique(string email);
-        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
-        Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO);
+        Task<User> UpdateAsync(User entity);
     }
 }

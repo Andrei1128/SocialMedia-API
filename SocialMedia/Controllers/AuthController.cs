@@ -1,21 +1,21 @@
-﻿using FirstProject_API.Models;
-using FirstProject_API.Models.DTOs;
-using FirstProject_API.Repository.IRepository;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SocialMedia.Models;
+using SocialMedia.Models.DTOs;
+using SocialMedia.Repository.IRepository;
 using System.Net;
 
-namespace FirstProject_API.Controllers
+namespace SocialMedia.Controllers
 {
-    [Route("api/Auth")]
+    [Route("auth")]
     [ApiController]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAuthRepository _dbUser;
         protected APIResponse _response;
-        public AuthController(IUserRepository userRepository)
+        public AuthController(IAuthRepository dbUser)
         {
             this._response = new APIResponse();
-            _userRepository = userRepository;
+            _dbUser = dbUser;
         }
 
         [HttpPost("login")]
@@ -23,7 +23,7 @@ namespace FirstProject_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            var loginResponse = await _userRepository.Login(model);
+            var loginResponse = await _dbUser.Login(model);
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
@@ -41,11 +41,10 @@ namespace FirstProject_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO model)
         {
-            bool isEmailUnique = _userRepository.IsEmailUnique(model.Email);
-            Console.WriteLine(isEmailUnique);
+            bool isEmailUnique = _dbUser.IsEmailUnique(model.Email);
             if (isEmailUnique)
             {
-                var registerResponse = await _userRepository.Register(model);
+                var registerResponse = await _dbUser.Register(model);
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = registerResponse;
                 return Ok(_response);

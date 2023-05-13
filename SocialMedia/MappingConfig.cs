@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using FirstProject_API.Models;
-using FirstProject_API.Models.DTOs;
+using SocialMedia.Models;
+using SocialMedia.Models.DTOs;
 
-namespace FirstProject_API
+namespace SocialMedia
 {
     public class MappingConfig : Profile
     {
@@ -15,6 +15,8 @@ namespace FirstProject_API
             CreateMap<Group, GroupDTO>().ReverseMap();
             CreateMap<Group, GroupCreatedDTO>().ReverseMap();
             CreateMap<Group, GroupUpdatedDTO>().ReverseMap();
+
+            CreateMap<UserDTO, User>().ReverseMap();
         }
     }
 }

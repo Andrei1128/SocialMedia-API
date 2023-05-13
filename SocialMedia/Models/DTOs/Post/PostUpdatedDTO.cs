@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject_API.Models.DTOs
+namespace SocialMedia.Models.DTOs
 {
-    public class PostDTO
+    public class PostUpdatedDTO
     {
         public int Id { get; set; }
         [Required]

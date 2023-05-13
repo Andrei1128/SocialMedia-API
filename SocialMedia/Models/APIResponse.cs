@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace FirstProject_API.Models
+namespace SocialMedia.Models
 {
     public class APIResponse
     {

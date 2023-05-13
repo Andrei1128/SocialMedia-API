@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using FirstProject_API.Models;
-using FirstProject_API.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
+using SocialMedia.Models;
+using SocialMedia.Models.DTOs;
+using SocialMedia.Repository.IRepository;
 using System.Net;
 
-namespace FirstProject_API.Controllers
+namespace SocialMedia.Controllers
 {
     [Route("group")]
     [ApiController]
@@ -21,6 +22,7 @@ namespace FirstProject_API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetGroups()
         {
             try
@@ -42,6 +44,7 @@ namespace FirstProject_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ResponseCache(CacheProfileName = "Default30")]
         public async Task<ActionResult<APIResponse>> GetGroup(int id)
         {
             try
@@ -98,6 +101,7 @@ namespace FirstProject_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        // Adauga rol de admin pentru stergere
         public async Task<ActionResult<APIResponse>> DeleteGroup(int id)
         {
             try
@@ -130,6 +134,7 @@ namespace FirstProject_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        // Adauga rol de admin pentru modificare
         public async Task<ActionResult<APIResponse>> UpdateGroup(int id, [FromBody] GroupUpdatedDTO updateDTO)
         {
             try

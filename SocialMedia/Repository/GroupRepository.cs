@@ -1,8 +1,8 @@
-﻿using FirstProject_API.Data;
-using FirstProject_API.Models;
-using FirstProject_API.Repository.IRepository;
+﻿using SocialMedia.Data;
+using SocialMedia.Models;
+using SocialMedia.Repository.IRepository;
 
-namespace FirstProject_API.Repository
+namespace SocialMedia.Repository
 {
     public class GroupRepository : Repository<Group>, IGroupRepository
     {

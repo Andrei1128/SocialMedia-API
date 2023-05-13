@@ -1,6 +1,6 @@
-﻿using FirstProject_API.Models;
+﻿using SocialMedia.Models;
 
-namespace FirstProject_API.Repository.IRepository
+namespace SocialMedia.Repository.IRepository
 {
     public interface IGroupRepository : IRepository<Group>
     {

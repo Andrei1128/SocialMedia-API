@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject_API.Models.DTOs
+namespace SocialMedia.Models.DTOs
 {
     public class PostCreatedDTO
     {

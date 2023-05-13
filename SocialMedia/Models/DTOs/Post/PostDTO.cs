@@ -1,16 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject_API.Models.DTOs
+namespace SocialMedia.Models.DTOs
 {
-    public class PostUpdatedDTO
+    public class PostDTO
     {
         public int Id { get; set; }
         [Required]
-        public int AuthorId { get; set; }
-        public User Author { get; set; }
-
-        public int GroupId { get; set; }
-        public Group Group { get; set; }
+        public UserDTO Author { get; set; }
+        public Group GroupDTO { get; set; }
 
         public ICollection<User> Likes { get; set; }
         public ICollection<Post> Comments { get; set; }

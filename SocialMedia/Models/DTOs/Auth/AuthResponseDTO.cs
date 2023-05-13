@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FirstProject_API.Models.DTOs
+namespace SocialMedia.Models.DTOs
 {
-    public class LoginResponseDTO
+    public class AuthResponseDTO
     {
-        public User User { get; set; }
+        public UserDTO User { get; set; }
         [Required]
         public string Token { get; set; }
     }

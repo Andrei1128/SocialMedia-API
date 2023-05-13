@@ -1,28 +1,33 @@
 ﻿using AutoMapper;
-using FirstProject_API.Models;
-using FirstProject_API.Models.DTOs;
-using FirstProject_API.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialMedia.Models;
+using SocialMedia.Models.DTOs;
+using SocialMedia.Repository.IRepository;
+using SocialMedia.Utilities;
 using System.Net;
 
-namespace FirstProject_API.Controllers
+namespace SocialMedia.Controllers
 {
     [Route("post")]
     [ApiController]
-    public class PostController : ControllerBase
+    public class PostController : CustomControllerBase
     {
         protected APIResponse _response;
+        private readonly IUserRepository _dbUser;
         private readonly IPostRepository _dbPost;
         private readonly IMapper _mapper;
-        public PostController(IPostRepository dbPost, IMapper mapper)
+        public PostController(IPostRepository dbPost, IUserRepository dbUser, IMapper mapper)
         {
             this._response = new APIResponse();
             _mapper = mapper;
             _dbPost = dbPost;
+            _dbUser = dbUser;
         }
 
         [HttpGet]
-        [ResponseCache(CacheProfileName = "Default30")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetPosts()
         {
@@ -42,6 +47,8 @@ namespace FirstProject_API.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetPost")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,12 +58,14 @@ namespace FirstProject_API.Controllers
             {
                 if (id == 0)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 var post = await _dbPost.GetAsync(item => item.Id == id);
                 if (post == null)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
@@ -74,6 +83,8 @@ namespace FirstProject_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -85,6 +96,14 @@ namespace FirstProject_API.Controllers
                     return BadRequest(createDTO);
                 Post model = _mapper.Map<Post>(createDTO);
                 await _dbPost.CreateAsync(model);
+                int myId = await GetMyId();
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                if (myUser.Posts == null)
+                {
+                    myUser.Posts = new List<Post>();
+                }
+                myUser.Posts.Add(model);
+                await _dbUser.SaveAsync();
                 _response.Result = _mapper.Map<PostDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetPost", new { id = model.Id }, _response);
@@ -98,6 +117,8 @@ namespace FirstProject_API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,14 +128,23 @@ namespace FirstProject_API.Controllers
             {
                 if (id == 0)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 var post = await _dbPost.GetAsync(item => item.Id == id);
                 if (post == null)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
+                }
+                int myId = await GetMyId();
+                if (post.AuthorId != myId)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.Unauthorized;
+                    return Unauthorized(_response);
                 }
                 await _dbPost.RemoveAsync(post);
                 _response.Result = _mapper.Map<PostDTO>(post);
@@ -139,14 +169,23 @@ namespace FirstProject_API.Controllers
             {
                 if (updateDTO == null || id != updateDTO.Id)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 var post = await _dbPost.GetAsync(item => item.Id == id);
                 if (post == null)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
+                }
+                int myId = await GetMyId();
+                if (post.AuthorId != myId)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.Unauthorized;
+                    return Unauthorized(_response);
                 }
                 Post model = _mapper.Map<Post>(updateDTO);
                 await _dbPost.UpdateAsync(model);
