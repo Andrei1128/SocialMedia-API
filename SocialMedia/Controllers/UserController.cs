@@ -311,8 +311,10 @@ namespace SocialMedia.Controllers
                 int myId = await GetMyId();
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId);
 
+                group.Participants.Add(myUser);
                 myUser.Groups.Add(group);
                 await _dbUser.SaveAsync();
+                await _dbGroup.SaveAsync();
 
                 _response.IsSuccess = true;
                 _response.StatusCode = HttpStatusCode.OK;

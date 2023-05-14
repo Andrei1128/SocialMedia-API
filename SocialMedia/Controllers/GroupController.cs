@@ -4,22 +4,25 @@ using Microsoft.AspNetCore.Mvc;
 using SocialMedia.Models;
 using SocialMedia.Models.DTOs;
 using SocialMedia.Repository.IRepository;
+using SocialMedia.Utilities;
 using System.Net;
 
 namespace SocialMedia.Controllers
 {
     [Route("group")]
     [ApiController]
-    public class GroupController : ControllerBase
+    public class GroupController : CustomControllerBase
     {
         protected APIResponse _response;
         private readonly IGroupRepository _dbGroup;
+        private readonly IUserRepository _dbUser;
         private readonly IMapper _mapper;
-        public GroupController(IGroupRepository dbGroup, IMapper mapper)
+        public GroupController(IGroupRepository dbGroup, IUserRepository dbUser, IMapper mapper)
         {
             this._response = new APIResponse();
             _mapper = mapper;
             _dbGroup = dbGroup;
+            _dbUser = dbUser;
         }
 
         [HttpGet]
@@ -92,7 +95,15 @@ namespace SocialMedia.Controllers
                 if (createDTO == null)
                     return BadRequest(createDTO);
                 Group model = _mapper.Map<Group>(createDTO);
+                int myId = await GetMyId();
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                model.Participants = new List<User>
+                {
+                    myUser
+                };
                 await _dbGroup.CreateAsync(model);
+                myUser.Groups.Add(model);
+                await _dbUser.SaveAsync();
                 _response.Result = _mapper.Map<GroupDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetGroup", new { id = model.Id }, _response);
