@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialMedia.Models;
 using SocialMedia.Models.DTOs;
@@ -22,12 +23,17 @@ namespace SocialMedia.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetGroups()
+        public async Task<ActionResult<APIResponse>> GetGroups([FromQuery] string find, int pageSize = 24, int pageNumber = 1)
         {
             try
             {
-                IEnumerable<Group> GroupList = await _dbGroup.GetAllAsync(includeProprieties: "Posts");
+                IEnumerable<Group> GroupList;
+                if (find == null)
+                    GroupList = await _dbGroup.GetAllAsync(u => u.Name.ToLower().Contains(find.ToLower()), includeProprieties: "Posts,Participants", pageSize: pageSize, pageNumber: pageNumber);
+                else
+                    GroupList = await _dbGroup.GetAllAsync(includeProprieties: "Posts,Participants", pageSize: pageSize, pageNumber: pageNumber);
                 _response.Result = _mapper.Map<List<GroupDTO>>(GroupList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -41,6 +47,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetGroup")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,6 +81,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -98,6 +106,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,6 +140,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

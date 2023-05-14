@@ -16,35 +16,37 @@ namespace SocialMedia.Controllers
         protected APIResponse _response;
         private readonly IUserRepository _dbUser;
         private readonly IPostRepository _dbPost;
+        private readonly IGroupRepository _dbGroup;
         private readonly IMapper _mapper;
-        public PostController(IPostRepository dbPost, IUserRepository dbUser, IMapper mapper)
+        public PostController(IPostRepository dbPost, IUserRepository dbUser, IGroupRepository dbGroup, IMapper mapper)
         {
             this._response = new APIResponse();
             _mapper = mapper;
+            _dbGroup = dbGroup;
             _dbPost = dbPost;
             _dbUser = dbUser;
         }
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetPosts()
-        {
-            try
-            {
-                IEnumerable<Post> postList = await _dbPost.GetAllAsync();
-                _response.Result = _mapper.Map<List<PostDTO>>(postList);
-                _response.StatusCode = HttpStatusCode.OK;
-                return Ok(_response);
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
-            }
-            return _response;
-        }
+        //[HttpGet]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //public async Task<ActionResult<APIResponse>> GetPosts([FromQuery] int pageSize = 24, int pageNumber = 1)
+        //{
+        //    try
+        //    {
+        //        IEnumerable<Post> postList = await _dbPost.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
+        //        _response.Result = _mapper.Map<List<PostDTO>>(postList);
+        //        _response.StatusCode = HttpStatusCode.OK;
+        //        return Ok(_response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _response.IsSuccess = false;
+        //        _response.ErrorMessages = new List<string>() { ex.ToString() };
+        //    }
+        //    return _response;
+        //}
 
         [HttpGet("{id:int}", Name = "GetPost")]
         [Authorize]
@@ -95,7 +97,25 @@ namespace SocialMedia.Controllers
                 if (createDTO == null)
                     return BadRequest(createDTO);
                 Post model = _mapper.Map<Post>(createDTO);
+                if (createDTO.GroupId != 0)
+                {
+                    Group group = await _dbGroup.GetAsync(g => g.Id == createDTO.GroupId);
+                    if (group == null)
+                    {
+                        _response.IsSuccess = false;
+                        _response.ErrorMessages.Add("Group not found!");
+                        _response.StatusCode = HttpStatusCode.NotFound;
+                        return NotFound(_response);
+                    }
+                    model.Group = group;
+                    model.GroupId = group.Id;
+                    if (group.Posts == null)
+                        group.Posts = new List<Post>();
+                    group.Posts.Add(model);
+                }
                 await _dbPost.CreateAsync(model);
+                if (createDTO.GroupId != 0)
+                    await _dbGroup.SaveAsync();
                 int myId = await GetMyId();
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId);
                 if (myUser.Posts == null)
@@ -160,6 +180,7 @@ namespace SocialMedia.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

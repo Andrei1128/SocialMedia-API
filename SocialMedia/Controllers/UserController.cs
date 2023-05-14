@@ -25,12 +25,34 @@ namespace SocialMedia.Controllers
             _dbGroup = dbGroup;
         }
 
+        [HttpGet("GetFeed")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<APIResponse>> GetFeed([FromBody] int pageSize = 24, int pageNumber = 1)
+        {
+            try
+            {
+                int myId = await GetMyId();
+                var feed = await _dbUser.GetFeed(myId, pageSize: pageSize, pageNumber: pageNumber);
+                _response.Result = feed;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
         [HttpGet("FindPeople")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize]
-        public async Task<ActionResult<APIResponse>> FindPeople([FromQuery] string find)
+        public async Task<ActionResult<APIResponse>> FindPeople([FromQuery] string find, int pageSize = 24, int pageNumber = 1)
         {
             try
             {
@@ -43,7 +65,7 @@ namespace SocialMedia.Controllers
                 }
                 else
                 {
-                    IEnumerable<User> userList = await _dbUser.GetAllAsync(u => u.Name.ToLower().Contains(find.ToLower()), includeProprieties: "Friends,Groups,Posts");
+                    IEnumerable<User> userList = await _dbUser.GetAllAsync(u => u.Name.ToLower().Contains(find.ToLower()), includeProprieties: "Friends,Groups,Posts", pageSize: pageSize, pageNumber: pageNumber);
                     _response.Result = _mapper.Map<List<UserDTO>>(userList);
                     _response.StatusCode = HttpStatusCode.OK;
                     return Ok(_response);
