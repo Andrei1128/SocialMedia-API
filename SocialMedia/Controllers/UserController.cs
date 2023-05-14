@@ -170,10 +170,13 @@ namespace SocialMedia.Controllers
 
                 myUser.Requests.Remove(request);
 
+
                 UserFriend userFriend = new UserFriend()
                 {
-                    UserId = myId,
-                    FriendId = friend.Id,
+                    UserId = friend.Id,
+                    User = friend,
+                    FriendId = myUser.Id,
+                    Friend = myUser,
                 };
 
                 if (myUser.Friends == null)
@@ -183,6 +186,7 @@ namespace SocialMedia.Controllers
                 if (friend.Friends == null)
                     friend.Friends = new List<UserFriend>();
                 friend.Friends.Add(userFriend);
+
 
                 await _dbUser.SaveAsync();
 
@@ -215,7 +219,7 @@ namespace SocialMedia.Controllers
                     return BadRequest(_response);
                 }
                 int myId = await GetMyId();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Requests");
 
                 UserRequest request = myUser.Requests.FirstOrDefault(r => r.UserId == myId);
                 if (request == null)
