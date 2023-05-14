@@ -84,6 +84,99 @@ namespace SocialMedia.Controllers
             return _response;
         }
 
+        [HttpPatch("AddLike/{id:int}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> AddLike(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Invalid Id");
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                Post post = await _dbPost.GetAsync(u => u.Id == id);
+                if (post == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Post not found!");
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+                int myId = await GetMyId();
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+
+                if (post.Likes == null)
+                {
+                    post.Likes = new List<User>
+                    {
+                        myUser
+                    };
+                }
+                await _dbPost.SaveAsync();
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
+        [HttpPatch("AddComment/{id:int}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> AddComment(int id, [FromBody] PostCreatedDTO comment)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Invalid Id");
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                Post post = await _dbPost.GetAsync(u => u.Id == id);
+                if (post == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Post not found!");
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+                Post model = _mapper.Map<Post>(comment);
+                await _dbPost.CreateAsync(model);
+                if (post.Comments == null)
+                {
+                    post.Comments = new List<Post>
+                    {
+                        model
+                    };
+                }
+                await _dbPost.SaveAsync();
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
