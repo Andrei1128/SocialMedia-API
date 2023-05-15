@@ -28,12 +28,12 @@ namespace SocialMedia.Controllers
         [HttpGet]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetGroups([FromQuery] string find, int pageSize = 24, int pageNumber = 1)
+        public async Task<ActionResult<APIResponse>> GetGroups([FromQuery] string find = null, int pageSize = 24, int pageNumber = 1)
         {
             try
             {
                 IEnumerable<Group> GroupList;
-                if (find == null)
+                if (find != null)
                     GroupList = await _dbGroup.GetAllAsync(u => u.Name.ToLower().Contains(find.ToLower()), includeProprieties: "Posts,Participants", pageSize: pageSize, pageNumber: pageNumber);
                 else
                     GroupList = await _dbGroup.GetAllAsync(includeProprieties: "Posts,Participants", pageSize: pageSize, pageNumber: pageNumber);
@@ -64,7 +64,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var group = await _dbGroup.GetAsync(item => item.Id == id, includeProprieties: "Posts");
+                var group = await _dbGroup.GetAsync(item => item.Id == id, includeProprieties: "Posts,Participants");
                 if (group == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;

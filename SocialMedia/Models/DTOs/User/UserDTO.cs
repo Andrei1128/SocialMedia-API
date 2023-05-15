@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         public ICollection<UserRequest> Requests { get; set; }
-        public ICollection<UserFriend> Friends { get; set; }
+        public ICollection<User> Friends { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Group> Groups { get; set; }
 

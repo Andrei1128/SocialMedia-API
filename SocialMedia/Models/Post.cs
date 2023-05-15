@@ -7,7 +7,7 @@
         public int AuthorId { get; set; }
         public User Author { get; set; }
 
-        public int GroupId { get; set; }
+        public int? GroupId { get; set; }
         public Group Group { get; set; }
 
         public ICollection<User> Likes { get; set; }

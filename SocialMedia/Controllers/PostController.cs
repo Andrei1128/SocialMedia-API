@@ -190,6 +190,7 @@ namespace SocialMedia.Controllers
                 if (createDTO == null)
                     return BadRequest(createDTO);
                 Post model = _mapper.Map<Post>(createDTO);
+                int myId = await GetMyId();
                 if (createDTO.GroupId != 0)
                 {
                     Group group = await _dbGroup.GetAsync(g => g.Id == createDTO.GroupId);
@@ -200,16 +201,28 @@ namespace SocialMedia.Controllers
                         _response.StatusCode = HttpStatusCode.NotFound;
                         return NotFound(_response);
                     }
+                    bool userIsInGroup = group.Participants.Any(p => p.Id == myId);
+                    if (!userIsInGroup)
+                    {
+                        _response.IsSuccess = false;
+                        _response.ErrorMessages.Add("You are not member of this group!");
+                        _response.StatusCode = HttpStatusCode.BadRequest;
+                        return BadRequest(_response);
+                    }
                     model.Group = group;
                     model.GroupId = group.Id;
                     if (group.Posts == null)
                         group.Posts = new List<Post>();
                     group.Posts.Add(model);
                 }
+                else
+                {
+                    model.GroupId = null;
+                }
+                model.AuthorId = myId;
                 await _dbPost.CreateAsync(model);
                 if (createDTO.GroupId != 0)
                     await _dbGroup.SaveAsync();
-                int myId = await GetMyId();
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId);
                 if (myUser.Posts == null)
                 {

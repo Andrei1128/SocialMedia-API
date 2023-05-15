@@ -77,3 +77,7 @@ C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\obj\Debug\net7.0\refint
 C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\obj\Debug\net7.0\SocialMedia.pdb
 C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\obj\Debug\net7.0\SocialMedia.genruntimeconfig.cache
 C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\obj\Debug\net7.0\ref\SocialMedia.dll
+C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\bin\Debug\net7.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\bin\Debug\net7.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Andrei\Facultate\C#\SocialMedia-API\SocialMedia\bin\Debug\net7.0\Newtonsoft.Json.Bson.dll

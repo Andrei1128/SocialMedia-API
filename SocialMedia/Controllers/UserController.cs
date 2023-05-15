@@ -29,7 +29,7 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<APIResponse>> GetFeed([FromBody] int pageSize = 24, int pageNumber = 1)
+        public async Task<ActionResult<APIResponse>> GetFeed([FromQuery] int pageSize = 24, int pageNumber = 1)
         {
             try
             {
@@ -102,12 +102,17 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
+                bool friendRequestExists = false;
+                bool friendExists = false;
                 int myId = await GetMyId();
-                bool friendRequestExists = userFound.Requests.Any(r => r.UserId == id && r.RequestedUserId == myId);
-                if (friendRequestExists)
+                if (userFound.Requests != null)
+                    friendRequestExists = userFound.Requests.Any(r => r.UserId == id && r.RequestedUserId == myId);
+                if (userFound.Friends != null)
+                    friendExists = userFound.Friends.Any(f => f.Id == id);
+                if (friendRequestExists || friendExists)
                 {
                     _response.IsSuccess = false;
-                    _response.ErrorMessages.Add("Friend request already exists.");
+                    _response.ErrorMessages.Add("Friend request/Friend already exists.");
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
@@ -141,16 +146,16 @@ namespace SocialMedia.Controllers
         {
             try
             {
-                if (id == 0)
+                int myId = await GetMyId();
+                if (id == 0 || myId == id)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                int myId = await GetMyId();
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Requests,Friends");
 
-                UserRequest request = myUser.Requests.FirstOrDefault(r => r.UserId == myId);
+                UserRequest request = myUser.Requests.FirstOrDefault(r => r.RequestedUserId == id);
                 if (request == null)
                 {
                     _response.IsSuccess = false;
@@ -171,21 +176,13 @@ namespace SocialMedia.Controllers
                 myUser.Requests.Remove(request);
 
 
-                UserFriend userFriend = new UserFriend()
-                {
-                    UserId = friend.Id,
-                    User = friend,
-                    FriendId = myUser.Id,
-                    Friend = myUser,
-                };
-
                 if (myUser.Friends == null)
-                    myUser.Friends = new List<UserFriend>();
-                myUser.Friends.Add(userFriend);
+                    myUser.Friends = new List<User>();
+                myUser.Friends.Add(friend);
 
                 if (friend.Friends == null)
-                    friend.Friends = new List<UserFriend>();
-                friend.Friends.Add(userFriend);
+                    friend.Friends = new List<User>();
+                friend.Friends.Add(myUser);
 
 
                 await _dbUser.SaveAsync();
@@ -261,9 +258,9 @@ namespace SocialMedia.Controllers
                     return BadRequest(_response);
                 }
                 int myId = await GetMyId();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Friends");
+                User friend = await _dbUser.GetAsync(u => u.Id == id, includeProprieties: "Friends");
 
-                UserFriend friend = myUser.Friends.FirstOrDefault(f => f.FriendId == id);
                 if (friend == null)
                 {
                     _response.IsSuccess = false;
@@ -272,6 +269,7 @@ namespace SocialMedia.Controllers
                     return NotFound(_response);
                 }
 
+                friend.Friends.Remove(myUser);
                 myUser.Friends.Remove(friend);
                 await _dbUser.SaveAsync();
 
@@ -303,17 +301,26 @@ namespace SocialMedia.Controllers
                     return BadRequest(_response);
                 }
 
-                Group group = await _dbGroup.GetAsync(g => g.Id == id);
+                Group group = await _dbGroup.GetAsync(g => g.Id == id, includeProprieties: "Participants");
 
                 if (group == null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.ErrorMessages.Add("Group not found!");
                     return NotFound(_response);
                 }
 
                 int myId = await GetMyId();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Groups");
+                bool alreadyInGroup = myUser.Groups.Any(g => g.Id == group.Id);
+                if (alreadyInGroup)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("You are alredy in this group!");
+                    return BadRequest(_response);
+                }
 
                 group.Participants.Add(myUser);
                 myUser.Groups.Add(group);

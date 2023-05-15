@@ -28,7 +28,7 @@ namespace SocialMedia.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Username or password is incorrect!");
+                _response.ErrorMessages.Add("Email or password is incorrect!");
                 return BadRequest(_response);
             }
             _response.StatusCode = HttpStatusCode.OK;

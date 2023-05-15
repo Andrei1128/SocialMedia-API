@@ -95,7 +95,7 @@ namespace SocialMedia.Repository
                 Email = registerRequestDTO.Email,
                 Name = registerRequestDTO.Name,
                 Password = EncodePassword(registerRequestDTO.Password),
-                Friends = new List<UserFriend>(),
+                Friends = new List<User>(),
                 Groups = new List<Group>(),
                 Posts = new List<Post>(),
                 Requests = new List<UserRequest>()

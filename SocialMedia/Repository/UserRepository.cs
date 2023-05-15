@@ -21,18 +21,20 @@ namespace SocialMedia.Repository
                 if (pageSize > 100)
                     pageSize = 100;
             }
-            User user = await _db.Users.Include(u => u.Friends)
-                           .ThenInclude(uf => uf.Friend)
-                           .Include(u => u.Groups)
-                           .ThenInclude(g => g.Posts)
-                           .FirstOrDefaultAsync(u => u.Id == id);
+            User user = await _db.Users
+                .Include(u => u.Friends)
+                    .ThenInclude(f => f.Posts)
+                .Include(u => u.Groups)
+                    .ThenInclude(g => g.Posts)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            List<Post> feed = user.Friends.SelectMany(f => f.Friend.Posts)
-                                          .Concat(user.Groups.SelectMany(g => g.Posts))
-                                          .OrderByDescending(p => p.CreatedDate)
-                                          .Skip(pageSize * (pageNumber - 1))
-                                          .Take(pageSize)
-                                          .ToList();
+            List<Post> feed = user.Friends
+                .SelectMany(f => f.Posts)
+                .Concat(user.Groups.SelectMany(g => g.Posts))
+                .OrderByDescending(p => p.CreatedDate)
+                .Skip(pageSize * (pageNumber - 1))
+                .Take(pageSize)
+                .ToList();
 
             return feed;
         }
