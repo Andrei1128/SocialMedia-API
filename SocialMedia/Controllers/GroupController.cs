@@ -28,6 +28,7 @@ namespace SocialMedia.Controllers
         [HttpGet]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<APIResponse>> GetGroups([FromQuery] string find = null, int pageSize = 24, int pageNumber = 1)
         {
             try
@@ -44,7 +45,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -53,8 +54,8 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ResponseCache(CacheProfileName = "Default30")]
         public async Task<ActionResult<APIResponse>> GetGroup(int id)
         {
@@ -78,8 +79,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString()
-    };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -89,7 +89,6 @@ namespace SocialMedia.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CreateGroup([FromBody] GroupCreatedDTO createDTO)
         {
             try
@@ -114,7 +113,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -158,7 +157,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -208,7 +207,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }

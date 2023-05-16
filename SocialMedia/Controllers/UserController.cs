@@ -25,8 +25,8 @@ namespace SocialMedia.Controllers
             _dbGroup = dbGroup;
         }
 
-        [HttpGet("GetFeed")]
         [Authorize]
+        [HttpGet("GetFeed")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<APIResponse>> GetFeed([FromQuery] int pageSize = 24, int pageNumber = 1)
@@ -47,12 +47,12 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-
+        [Authorize]
         [HttpGet("FindPeople")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
         public async Task<ActionResult<APIResponse>> FindPeople([FromQuery] string find, int pageSize = 24, int pageNumber = 1)
         {
             try
@@ -79,12 +79,13 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-        [HttpPatch("AddFriend/{id:int}")]
+
         [Authorize]
+        [HttpPatch("AddFriend/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> AddFriend(int id)
         {
             try
@@ -136,12 +137,13 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-        [HttpPatch("AcceptRequest/{id:int}")]
+
         [Authorize]
+        [HttpPatch("AcceptRequest/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> AcceptRequest(int id)
         {
             try
@@ -154,7 +156,6 @@ namespace SocialMedia.Controllers
                     return BadRequest(_response);
                 }
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Requests,Friends");
-
                 UserRequest request = myUser.Requests.FirstOrDefault(r => r.RequestedUserId == id);
                 if (request == null)
                 {
@@ -163,7 +164,6 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-
                 User friend = await _dbUser.GetAsync(u => u.Id == id, includeProprieties: "Friends");
                 if (friend == null)
                 {
@@ -172,22 +172,14 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-
                 myUser.Requests.Remove(request);
-
-
                 if (myUser.Friends == null)
                     myUser.Friends = new List<User>();
                 myUser.Friends.Add(friend);
-
                 if (friend.Friends == null)
                     friend.Friends = new List<User>();
                 friend.Friends.Add(myUser);
-
-
                 await _dbUser.SaveAsync();
-
-
                 _response.IsSuccess = true;
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -199,12 +191,13 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-        [HttpPatch("DeclineRequest/{id:int}")]
+
         [Authorize]
+        [HttpPatch("DeclineRequest/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> DeclineRequest(int id)
         {
             try
@@ -241,12 +234,13 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-        [HttpPatch("RemoveFriend/{id:int}")]
+
         [Authorize]
+        [HttpPatch("RemoveFriend/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> RemoveFriend(int id)
         {
             try
@@ -285,12 +279,13 @@ namespace SocialMedia.Controllers
             }
             return _response;
         }
-        [HttpPatch("EnterGroup/{id:int}")]
+
         [Authorize]
+        [HttpPatch("EnterGroup/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> EnterGroup(int id)
         {
             try

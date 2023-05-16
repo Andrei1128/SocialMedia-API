@@ -10,8 +10,7 @@ namespace SocialMedia.Data
         {
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Author)
-                .WithMany(u => u.Posts)
-                .HasForeignKey(p => p.AuthorId);
+                .WithMany(u => u.Posts);
 
             base.OnModelCreating(modelBuilder);
         }

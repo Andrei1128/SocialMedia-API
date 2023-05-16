@@ -27,32 +27,11 @@ namespace SocialMedia.Controllers
             _dbUser = dbUser;
         }
 
-        //[HttpGet]
-        //[Authorize]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //public async Task<ActionResult<APIResponse>> GetPosts([FromQuery] int pageSize = 24, int pageNumber = 1)
-        //{
-        //    try
-        //    {
-        //        IEnumerable<Post> postList = await _dbPost.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
-        //        _response.Result = _mapper.Map<List<PostDTO>>(postList);
-        //        _response.StatusCode = HttpStatusCode.OK;
-        //        return Ok(_response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.IsSuccess = false;
-        //        _response.ErrorMessages = new List<string>() { ex.ToString() };
-        //    }
-        //    return _response;
-        //}
-
         [HttpGet("{id:int}", Name = "GetPost")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetPost(int id)
         {
@@ -64,7 +43,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(p => p.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id, includeProprieties: "Likes,Comments");
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -78,17 +57,16 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString()
-    };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
 
         [HttpPatch("AddLike/{id:int}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> AddLike(int id)
         {
@@ -101,7 +79,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                Post post = await _dbPost.GetAsync(u => u.Id == id);
+                Post post = await _dbPost.GetAsync(u => u.Id == id, includeProprieties: "Likes");
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -110,15 +88,8 @@ namespace SocialMedia.Controllers
                     return NotFound(_response);
                 }
                 int myId = await GetMyId();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Likes");
-
-                if (post.Likes == null)
-                {
-                    post.Likes = new List<User>
-                    {
-                        myUser
-                    };
-                }
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                post.Likes.Add(myUser);
                 await _dbPost.SaveAsync();
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -126,16 +97,16 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
 
         [HttpPatch("AddComment/{id:int}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> AddComment(int id, [FromBody] PostCreatedDTO comment)
         {
@@ -158,14 +129,11 @@ namespace SocialMedia.Controllers
                 }
                 comment.GroupId = null;
                 Post model = _mapper.Map<Post>(comment);
+                int myId = await GetMyId();
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                model.Author = myUser;
                 await _dbPost.CreateAsync(model);
-                if (post.Comments == null)
-                {
-                    post.Comments = new List<Post>
-                    {
-                        model
-                    };
-                }
+                post.Comments.Add(model);
                 await _dbPost.SaveAsync();
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -173,16 +141,16 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
 
         [HttpPost]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CreatePost([FromBody] PostCreatedDTO createDTO)
         {
@@ -192,7 +160,7 @@ namespace SocialMedia.Controllers
                     return BadRequest(createDTO);
                 Post model = _mapper.Map<Post>(createDTO);
                 int myId = await GetMyId();
-                if (createDTO.GroupId != 0)
+                if (createDTO.GroupId != 0 && createDTO.GroupId != null)
                 {
                     Group group = await _dbGroup.GetAsync(g => g.Id == createDTO.GroupId, includeProprieties: "Participants,Posts");
                     if (group == null)
@@ -212,23 +180,17 @@ namespace SocialMedia.Controllers
                     }
                     model.Group = group;
                     model.GroupId = group.Id;
-                    if (group.Posts == null)
-                        group.Posts = new List<Post>();
                     group.Posts.Add(model);
                 }
                 else
                 {
                     model.GroupId = null;
                 }
-                model.AuthorId = myId;
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Posts");
+                model.Author = myUser;
                 await _dbPost.CreateAsync(model);
                 if (createDTO.GroupId != 0)
                     await _dbGroup.SaveAsync();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
-                if (myUser.Posts == null)
-                {
-                    myUser.Posts = new List<Post>();
-                }
                 myUser.Posts.Add(model);
                 await _dbUser.SaveAsync();
                 _response.Result = _mapper.Map<PostDTO>(model);
@@ -238,16 +200,16 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
 
         [HttpDelete("{id:int}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> DeletePost(int id)
         {
@@ -259,7 +221,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(p => p.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id, includeProprieties: "Author");
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -267,12 +229,15 @@ namespace SocialMedia.Controllers
                     return NotFound(_response);
                 }
                 int myId = await GetMyId();
-                if (post.AuthorId != myId)
+                if (post.Author.Id != myId)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.Unauthorized;
                     return Unauthorized(_response);
                 }
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Posts");
+                myUser.Posts.Remove(post);
+                await _dbUser.SaveAsync();
                 await _dbPost.RemoveAsync(post);
                 _response.Result = _mapper.Map<PostDTO>(post);
                 _response.StatusCode = HttpStatusCode.NoContent;
@@ -281,7 +246,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -290,6 +255,7 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> UpdatePost(int id, [FromBody] PostUpdatedDTO updateDTO)
         {
@@ -301,7 +267,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(p => p.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id, includeProprieties: "Author");
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -309,7 +275,7 @@ namespace SocialMedia.Controllers
                     return NotFound(_response);
                 }
                 int myId = await GetMyId();
-                if (post.AuthorId != myId)
+                if (post.Author.Id != myId)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.Unauthorized;
@@ -325,7 +291,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }

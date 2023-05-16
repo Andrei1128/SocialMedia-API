@@ -21,7 +21,7 @@ namespace SocialMedia.Controllers
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
+        public async Task<ActionResult<APIResponse>> Login([FromBody] LoginRequestDTO model)
         {
             var loginResponse = await _dbUser.Login(model);
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
@@ -39,7 +39,7 @@ namespace SocialMedia.Controllers
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDTO model)
+        public async Task<ActionResult<APIResponse>> Register([FromBody] RegisterRequestDTO model)
         {
             bool isEmailUnique = _dbUser.IsEmailUnique(model.Email);
             if (isEmailUnique)
