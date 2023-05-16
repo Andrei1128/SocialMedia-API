@@ -35,14 +35,15 @@ namespace SocialMedia.Controllers
             {
                 int myId = await GetMyId();
                 var feed = await _dbUser.GetFeed(myId, pageSize: pageSize, pageNumber: pageNumber);
-                _response.Result = feed;
+                List<PostDTO> feedDTO = _mapper.Map<List<PostDTO>>(feed);
+                _response.Result = feedDTO;
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -74,7 +75,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -88,13 +89,14 @@ namespace SocialMedia.Controllers
         {
             try
             {
-                if (id == 0)
+                int myId = await GetMyId();
+                if (id == 0 || myId == id)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                User userFound = await _dbUser.GetAsync(u => u.Id == id, includeProprieties: "Requests");
+                User userFound = await _dbUser.GetAsync(u => u.Id == id, includeProprieties: "Requests,Friends");
                 if (userFound == null)
                 {
                     _response.IsSuccess = false;
@@ -104,11 +106,9 @@ namespace SocialMedia.Controllers
                 }
                 bool friendRequestExists = false;
                 bool friendExists = false;
-                int myId = await GetMyId();
-                if (userFound.Requests != null)
-                    friendRequestExists = userFound.Requests.Any(r => r.UserId == id && r.RequestedUserId == myId);
-                if (userFound.Friends != null)
-                    friendExists = userFound.Friends.Any(f => f.Id == id);
+
+                friendRequestExists = userFound.Requests.Any(r => r.UserId == id && r.RequestedUserId == myId);
+                friendExists = userFound.Friends.Any(f => f.Id == myId);
                 if (friendRequestExists || friendExists)
                 {
                     _response.IsSuccess = false;
@@ -132,7 +132,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -195,7 +195,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -237,7 +237,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -251,13 +251,14 @@ namespace SocialMedia.Controllers
         {
             try
             {
-                if (id == 0)
+                int myId = await GetMyId();
+                if (id == 0 || myId == id)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                int myId = await GetMyId();
+
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Friends");
                 User friend = await _dbUser.GetAsync(u => u.Id == id, includeProprieties: "Friends");
 
@@ -280,7 +281,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }
@@ -334,7 +335,7 @@ namespace SocialMedia.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.ToString() };
+                _response.ErrorMessages.Add(ex.ToString());
             }
             return _response;
         }

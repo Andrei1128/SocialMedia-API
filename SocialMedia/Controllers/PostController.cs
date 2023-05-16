@@ -64,7 +64,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(item => item.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id);
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -110,7 +110,7 @@ namespace SocialMedia.Controllers
                     return NotFound(_response);
                 }
                 int myId = await GetMyId();
-                User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                User myUser = await _dbUser.GetAsync(u => u.Id == myId, includeProprieties: "Likes");
 
                 if (post.Likes == null)
                 {
@@ -148,7 +148,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                Post post = await _dbPost.GetAsync(u => u.Id == id);
+                Post post = await _dbPost.GetAsync(u => u.Id == id, includeProprieties: "Comments");
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -156,6 +156,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
+                comment.GroupId = null;
                 Post model = _mapper.Map<Post>(comment);
                 await _dbPost.CreateAsync(model);
                 if (post.Comments == null)
@@ -193,7 +194,7 @@ namespace SocialMedia.Controllers
                 int myId = await GetMyId();
                 if (createDTO.GroupId != 0)
                 {
-                    Group group = await _dbGroup.GetAsync(g => g.Id == createDTO.GroupId);
+                    Group group = await _dbGroup.GetAsync(g => g.Id == createDTO.GroupId, includeProprieties: "Participants,Posts");
                     if (group == null)
                     {
                         _response.IsSuccess = false;
@@ -258,7 +259,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(item => item.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id);
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -300,7 +301,7 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var post = await _dbPost.GetAsync(item => item.Id == id);
+                var post = await _dbPost.GetAsync(p => p.Id == id);
                 if (post == null)
                 {
                     _response.IsSuccess = false;
@@ -314,8 +315,9 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.Unauthorized;
                     return Unauthorized(_response);
                 }
-                Post model = _mapper.Map<Post>(updateDTO);
-                await _dbPost.UpdateAsync(model);
+                post.ImageURL = updateDTO.ImageURL;
+                post.Content = updateDTO.Content;
+                await _dbPost.UpdateAsync(post);
                 _response.Result = _mapper.Map<PostDTO>(post);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);

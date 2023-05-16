@@ -12,8 +12,8 @@ using SocialMedia.Data;
 namespace SocialMedia.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230515155515_GroupIdCanBeNullInPostsNow")]
-    partial class GroupIdCanBeNullInPostsNow
+    [Migration("20230515184145_AddedAdminIdToGroup")]
+    partial class AddedAdminIdToGroup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,9 @@ namespace SocialMedia.Migrations
 
                     b.Property<string>("About")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");

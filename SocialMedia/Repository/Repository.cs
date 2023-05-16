@@ -27,12 +27,8 @@ namespace SocialMedia.Repository
             if (filter != null)
                 query = query.Where(filter);
             if (includeProprieties != null)
-            {
                 foreach (var includeProp in includeProprieties.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
                     query = query.Include(includeProp);
-                }
-            }
             if (pageNumber > 0)
             {
                 if (pageSize > 100)
@@ -50,12 +46,8 @@ namespace SocialMedia.Repository
             if (filter != null)
                 query = query.Where(filter);
             if (includeProprieties != null)
-            {
                 foreach (var includeProp in includeProprieties.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
                     query = query.Include(includeProp);
-                }
-            }
             return await query.FirstOrDefaultAsync();
         }
 

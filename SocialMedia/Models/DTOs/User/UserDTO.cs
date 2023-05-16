@@ -3,11 +3,10 @@
     public class UserDTO
     {
         public int Id { get; set; }
-
         public ICollection<UserRequest> Requests { get; set; }
-        public ICollection<User> Friends { get; set; }
-        public ICollection<Post> Posts { get; set; }
-        public ICollection<Group> Groups { get; set; }
+        public ICollection<UserDTO> Friends { get; set; }
+        public ICollection<PostDTO> Posts { get; set; }
+        public ICollection<GroupDTO> Groups { get; set; }
 
         public string Name { get; set; }
         public string ImageURL { get; set; }

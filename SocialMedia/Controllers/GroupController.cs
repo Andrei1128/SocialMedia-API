@@ -54,6 +54,7 @@ namespace SocialMedia.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ResponseCache(CacheProfileName = "Default30")]
         public async Task<ActionResult<APIResponse>> GetGroup(int id)
         {
@@ -87,6 +88,7 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CreateGroup([FromBody] GroupCreatedDTO createDTO)
         {
@@ -97,6 +99,7 @@ namespace SocialMedia.Controllers
                 Group model = _mapper.Map<Group>(createDTO);
                 int myId = await GetMyId();
                 User myUser = await _dbUser.GetAsync(u => u.Id == myId);
+                model.AdminId = myId;
                 model.Participants = new List<User>
                 {
                     myUser
@@ -120,22 +123,32 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // Adauga rol de admin pentru stergere
         public async Task<ActionResult<APIResponse>> DeleteGroup(int id)
         {
             try
             {
                 if (id == 0)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 var group = await _dbGroup.GetAsync(item => item.Id == id);
                 if (group == null)
                 {
+                    _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
+                }
+                int myId = await GetMyId();
+                if (group.AdminId != myId)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.Unauthorized;
+                    _response.ErrorMessages.Add("You are not the group admin!");
+                    return Unauthorized(_response);
                 }
                 await _dbGroup.RemoveAsync(group);
                 _response.Result = _mapper.Map<GroupDTO>(group);
@@ -154,8 +167,8 @@ namespace SocialMedia.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // Adauga rol de admin pentru modificare
         public async Task<ActionResult<APIResponse>> UpdateGroup(int id, [FromBody] GroupUpdatedDTO updateDTO)
         {
             try
@@ -171,13 +184,23 @@ namespace SocialMedia.Controllers
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
+                int myId = await GetMyId();
+                if (group.AdminId != myId)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.Unauthorized;
+                    _response.ErrorMessages.Add("You are not the group admin!");
+                    return Unauthorized(_response);
+                }
                 if (await _dbGroup.GetAsync(u => u.Id == updateDTO.Id) == null)
                 {
                     ModelState.AddModelError("ErrorMessages", "Group Id is invalid!");
                     return BadRequest(ModelState);
                 }
-                Group model = _mapper.Map<Group>(updateDTO);
-                await _dbGroup.UpdateAsync(model);
+                group.Name = updateDTO.Name;
+                group.ImageURL = updateDTO.ImageURL;
+                group.About = updateDTO.About;
+                await _dbGroup.UpdateAsync(group);
                 _response.Result = _mapper.Map<GroupDTO>(group);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);

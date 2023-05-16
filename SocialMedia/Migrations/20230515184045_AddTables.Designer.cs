@@ -12,8 +12,8 @@ using SocialMedia.Data;
 namespace SocialMedia.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230513192817_AddedIdColToUserRequest")]
-    partial class AddedIdColToUserRequest
+    [Migration("20230515184045_AddTables")]
+    partial class AddTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,7 +85,7 @@ namespace SocialMedia.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("ImageURL")
@@ -140,26 +140,16 @@ namespace SocialMedia.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("SocialMedia.Models.UserFriend", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FriendId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "FriendId");
-
-                    b.HasIndex("FriendId");
-
-                    b.ToTable("UserFriend");
                 });
 
             modelBuilder.Entity("SocialMedia.Models.UserRequest", b =>
@@ -208,9 +198,7 @@ namespace SocialMedia.Migrations
 
                     b.HasOne("SocialMedia.Models.Group", "Group")
                         .WithMany("Posts")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("SocialMedia.Models.Post", null)
                         .WithMany("Comments")
@@ -226,25 +214,10 @@ namespace SocialMedia.Migrations
                     b.HasOne("SocialMedia.Models.Post", null)
                         .WithMany("Likes")
                         .HasForeignKey("PostId");
-                });
 
-            modelBuilder.Entity("SocialMedia.Models.UserFriend", b =>
-                {
-                    b.HasOne("SocialMedia.Models.User", "Friend")
-                        .WithMany()
-                        .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SocialMedia.Models.User", "User")
+                    b.HasOne("SocialMedia.Models.User", null)
                         .WithMany("Friends")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Friend");
-
-                    b.Navigation("User");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("SocialMedia.Models.UserRequest", b =>

@@ -48,6 +48,9 @@ namespace SocialMedia.Migrations
                     b.Property<string>("About")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 

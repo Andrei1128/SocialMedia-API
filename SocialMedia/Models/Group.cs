@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
 
+        public int AdminId { get; set; }
         public ICollection<User> Participants { get; set; }
         public ICollection<Post> Posts { get; set; }
 

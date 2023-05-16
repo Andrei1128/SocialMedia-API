@@ -53,7 +53,7 @@ namespace SocialMedia.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    GroupId = table.Column<int>(type: "int", nullable: true),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -67,8 +67,7 @@ namespace SocialMedia.Migrations
                         name: "FK_Posts_Groups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Posts_Posts_PostId",
                         column: x => x.PostId,
@@ -89,7 +88,8 @@ namespace SocialMedia.Migrations
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PostId = table.Column<int>(type: "int", nullable: true)
+                    PostId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -99,45 +99,28 @@ namespace SocialMedia.Migrations
                         column: x => x.PostId,
                         principalTable: "Posts",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserFriend",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    FriendId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserFriend", x => new { x.UserId, x.FriendId });
                     table.ForeignKey(
-                        name: "FK_UserFriend_Users_FriendId",
-                        column: x => x.FriendId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserFriend_Users_UserId",
+                        name: "FK_Users_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "UserRequest",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RequestedUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRequest", x => new { x.UserId, x.RequestedUserId });
+                    table.PrimaryKey("PK_UserRequest", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserRequest_Users_RequestedUserId",
-                        column: x => x.RequestedUserId,
+                        name: "FK_UserRequest_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -164,19 +147,19 @@ namespace SocialMedia.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserFriend_FriendId",
-                table: "UserFriend",
-                column: "FriendId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRequest_RequestedUserId",
+                name: "IX_UserRequest_UserId",
                 table: "UserRequest",
-                column: "RequestedUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_PostId",
                 table: "Users",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserId",
+                table: "Users",
+                column: "UserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GroupUser_Users_ParticipantsId",
@@ -208,9 +191,6 @@ namespace SocialMedia.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupUser");
-
-            migrationBuilder.DropTable(
-                name: "UserFriend");
 
             migrationBuilder.DropTable(
                 name: "UserRequest");
